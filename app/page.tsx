@@ -7,6 +7,8 @@ import { getDataset } from "@/lib/data";
 import { getSupabaseMode } from "@/lib/supabase";
 import { getDemoStudentCredentials, getDemoTeacherCredentials } from "@/lib/student-auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const dataset = await getDataset();
   const mode = getSupabaseMode();

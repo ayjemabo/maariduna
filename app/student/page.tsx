@@ -8,6 +8,8 @@ import { getStudentSession } from "@/lib/auth";
 import { getStudentDashboard } from "@/lib/dashboard";
 import { formatDate } from "@/lib/format";
 
+export const dynamic = "force-dynamic";
+
 export default async function StudentPage({
   searchParams
 }: {

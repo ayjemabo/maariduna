@@ -7,6 +7,8 @@ import { getAppSession } from "@/lib/auth";
 import { getSubmissionView } from "@/lib/dashboard";
 import { formatDate } from "@/lib/format";
 
+export const dynamic = "force-dynamic";
+
 export default async function SubmissionDetailsPage({
   params
 }: {
