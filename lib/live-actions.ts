@@ -1,6 +1,8 @@
 import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase";
 
+const storageBucket = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET || "student-submissions";
+
 type EnsureSubmissionInput = {
   studentProfileId: string;
   roundId: string;
@@ -38,6 +40,11 @@ function detectFileKind(name: string): RegisterFileInput["kind"] {
   }
 
   return "document";
+}
+
+function getSafeStoragePath(submissionId: string, name: string) {
+  const extension = name.includes(".") ? `.${name.split(".").pop()?.toLowerCase()}` : "";
+  return `${submissionId}/${Date.now()}-${crypto.randomUUID()}${extension}`;
 }
 
 export async function ensureSubmission(input: EnsureSubmissionInput) {
@@ -107,6 +114,34 @@ export async function registerUploadedFile(input: Omit<RegisterFileInput, "kind"
 
   revalidatePath("/student");
   revalidatePath(`/submissions/${input.submissionId}`);
+}
+
+export async function uploadSubmissionFile(input: {
+  submissionId: string;
+  file: File;
+}) {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    throw new Error("Supabase server environment is not configured.");
+  }
+
+  const storagePath = getSafeStoragePath(input.submissionId, input.file.name);
+  const uploadResult = await supabase.storage.from(storageBucket).upload(storagePath, input.file, {
+    upsert: true
+  });
+
+  if (uploadResult.error) {
+    throw new Error(uploadResult.error.message);
+  }
+
+  await registerUploadedFile({
+    submissionId: input.submissionId,
+    name: input.file.webkitRelativePath || input.file.name,
+    sizeBytes: input.file.size,
+    storagePath
+  });
+
+  return storagePath;
 }
 
 export async function applyReviewUpdate(input: ReviewUpdateInput) {

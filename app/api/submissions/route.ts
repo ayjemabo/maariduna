@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAppSession } from "@/lib/auth";
 import { getDataset } from "@/lib/data";
-import { ensureSubmission, registerUploadedFile } from "@/lib/live-actions";
+import { ensureSubmission, registerUploadedFile, uploadSubmissionFile } from "@/lib/live-actions";
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +10,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "غير مصرح لك برفع الملفات." }, { status: 403 });
     }
 
-    const body = await request.json();
+    const contentType = request.headers.get("content-type") ?? "";
+    const body = contentType.includes("multipart/form-data")
+      ? await request.formData()
+      : await request.json();
     const dataset = await getDataset();
     const ownProfile = dataset.studentProfiles.find((profile) => profile.userId === session.userId);
 
@@ -18,21 +21,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "لا يوجد ملف طالب مرتبط بهذا الحساب." }, { status: 400 });
     }
 
-    if (body.submissionId) {
-      const existingSubmission = dataset.submissions.find((submission) => submission.id === body.submissionId);
+    const requestedSubmissionId =
+      body instanceof FormData
+        ? String(body.get("submissionId") ?? "")
+        : String(body.submissionId ?? "");
+    const roundId =
+      body instanceof FormData
+        ? String(body.get("roundId") ?? "")
+        : String(body.roundId ?? "");
+
+    if (requestedSubmissionId) {
+      const existingSubmission = dataset.submissions.find((submission) => submission.id === requestedSubmissionId);
       if (!existingSubmission || existingSubmission.studentProfileId !== ownProfile.id) {
         return NextResponse.json({ ok: false, error: "هذا التسليم لا يخص هذا الطالب." }, { status: 403 });
       }
     }
 
     const submissionId =
-      body.submissionId ||
+      requestedSubmissionId ||
       (await ensureSubmission({
         studentProfileId: ownProfile.id,
-        roundId: body.roundId
+        roundId
       }));
 
-    if (body.file) {
+    if (body instanceof FormData) {
+      const file = body.get("file");
+      if (file instanceof File) {
+        const storagePath = await uploadSubmissionFile({
+          submissionId,
+          file
+        });
+
+        return NextResponse.json({ ok: true, submissionId, storagePath });
+      }
+    } else if (body.file) {
       await registerUploadedFile({
         submissionId,
         name: body.file.name,

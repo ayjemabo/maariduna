@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { createBrowserSupabaseClient, hasPublicSupabaseEnv } from "@/lib/supabase";
+import { useRef, useState } from "react";
+import { hasPublicSupabaseEnv } from "@/lib/supabase";
 
 interface UploadPanelProps {
   submissionId?: string;
@@ -19,13 +19,7 @@ function getDisplayName(file: File) {
   return file.webkitRelativePath || file.name;
 }
 
-function getStoragePath(submissionId: string, file: File) {
-  const extension = file.name.includes(".") ? `.${file.name.split(".").pop()?.toLowerCase()}` : "";
-  return `${submissionId}/${Date.now()}-${globalThis.crypto.randomUUID()}${extension}`;
-}
-
 export function UploadPanel({ submissionId, roundId }: UploadPanelProps) {
-  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
   const [files, setFiles] = useState<File[]>([]);
   const [message, setMessage] = useState("اختر الملفات ثم اضغط رفع الملفات.");
   const [uploading, setUploading] = useState(false);
@@ -46,7 +40,7 @@ export function UploadPanel({ submissionId, roundId }: UploadPanelProps) {
   }
 
   async function uploadFiles() {
-    if (!supabase) {
+    if (!hasPublicSupabaseEnv) {
       setMessage("لا يمكن الرفع الآن لأن إعداد التخزين غير مكتمل.");
       return;
     }
@@ -87,36 +81,19 @@ export function UploadPanel({ submissionId, roundId }: UploadPanelProps) {
 
     for (const file of files) {
       const displayName = getDisplayName(file);
-      const path = getStoragePath(confirmedSubmissionId, file);
-      const { error } = await supabase.storage.from(storageBucket).upload(path, file, {
-        upsert: true
-      });
+      const formData = new FormData();
+      formData.append("submissionId", confirmedSubmissionId);
+      formData.append("file", file, displayName);
 
-      if (error) {
-        setUploading(false);
-        setMessage(`فشل رفع ${file.name}: ${error.message}`);
-        return;
-      }
-
-      const metadataResponse = await fetch("/api/submissions", {
+      const uploadResponse = await fetch("/api/submissions", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          submissionId: confirmedSubmissionId,
-          file: {
-            name: displayName,
-            sizeBytes: file.size,
-            storagePath: path
-          }
-        })
+        body: formData
       });
 
-      if (!metadataResponse.ok) {
-        const payload = await metadataResponse.json();
+      if (!uploadResponse.ok) {
+        const payload = await uploadResponse.json();
         setUploading(false);
-        setMessage(payload.error ?? `تم رفع ${file.name} لكن فشل حفظ بياناته في قاعدة البيانات.`);
+        setMessage(payload.error ?? `فشل رفع ${file.name}.`);
         return;
       }
     }
