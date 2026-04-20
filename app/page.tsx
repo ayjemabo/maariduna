@@ -4,15 +4,13 @@ import { SummaryCard } from "@/components/summary-card";
 import { StudentLoginForm } from "@/components/student-login-form";
 import { TeacherLoginForm } from "@/components/teacher-login-form";
 import { getDataset } from "@/lib/data";
-import { getSupabaseMode } from "@/lib/supabase";
 import { getDemoStudentCredentials, getDemoTeacherCredentials } from "@/lib/student-auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const dataset = await getDataset();
-  const mode = getSupabaseMode();
-  const showDemoHelp = mode === "mock";
+  const showDemoHelp = false;
 
   return (
     <Shell
@@ -30,7 +28,7 @@ export default async function HomePage() {
           <div className="section-head">
             <div>
               <h2>كيف تستخدم المنصة؟</h2>
-              <p>الطلاب والمعلمون يدخلون باسم المستخدم وكلمة المرور. المشرف ما زال عبر الاختيار السريع حالياً.</p>
+              <p>المنصة بسيطة: الطالب يرفع ملفاته، والمعلم يراجعها من شاشة واحدة.</p>
             </div>
           </div>
           <div className="simple-steps">
@@ -53,7 +51,7 @@ export default async function HomePage() {
           <div className="section-head">
             <div>
               <h2>اختر الصفحة</h2>
-              <p>الوضع الحالي: {mode === "live" ? "بيانات حقيقية من Supabase" : mode === "auth-only" ? "رفع مباشر بدون قراءة كاملة" : "تجريبي ببيانات محلية"}.</p>
+              <p>اختر الصفحة المناسبة ثم ابدأ مباشرة.</p>
             </div>
           </div>
           <div className="simple-steps">
@@ -74,49 +72,6 @@ export default async function HomePage() {
           <StudentLoginForm showDemoHelp={showDemoHelp} demoCredentials={getDemoStudentCredentials()} />
         </div>
         <TeacherLoginForm showDemoHelp={showDemoHelp} demoCredentials={getDemoTeacherCredentials()} />
-      </section>
-
-      <section className="card" style={{ marginTop: 18 }}>
-          <div className="section-head">
-            <div>
-              <h2>ملاحظة مهمة</h2>
-              <p>حتى يعمل دخول الطالب والمعلم في Supabase يجب إضافة اسم المستخدم وكلمة المرور المشفرة داخل قاعدة البيانات.</p>
-            </div>
-          </div>
-        <p className="helper-copy">
-          إذا كانت قاعدة البيانات قد أُنشئت قبل هذا التحديث، نفذ ملفات التحديث ثم أعد تشغيل الموقع.
-        </p>
-      </section>
-
-      <section className="table-card" style={{ marginTop: 18 }}>
-        <div className="section-head">
-          <div>
-            <h2>لقطة سريعة من النشاط الحالي</h2>
-            <p>يعرض هذا الجدول ملخصاً سريعاً لما داخل النظام حالياً.</p>
-          </div>
-        </div>
-        <table className="table">
-          <thead>
-            <tr>
-              <th>المؤشر</th>
-              <th>القيمة</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>إجمالي التسليمات</td>
-              <td>{dataset.submissions.length}</td>
-            </tr>
-            <tr>
-              <td>ملفات تحتاج مراجعة</td>
-              <td>{dataset.submissions.filter((submission) => submission.status !== "approved").length}</td>
-            </tr>
-            <tr>
-              <td>هوية المشروع</td>
-              <td>سيتم إضافة شعار المدرسة لاحقاً دون تغيير البنية.</td>
-            </tr>
-          </tbody>
-        </table>
       </section>
     </Shell>
   );

@@ -36,7 +36,7 @@ export default async function TeacherPage({
     );
   }
 
-  const { teacher, cards, source } = await getTeacherDashboard(session.userId);
+  const { teacher, cards } = await getTeacherDashboard(session.userId);
 
   if (!teacher) {
     return (
@@ -105,7 +105,7 @@ export default async function TeacherPage({
         <div className="section-head">
           <div>
             <h2>التسليمات الحالية</h2>
-            <p>الجدول يوضح الطالب، الجولة، حالة التسليم، والدرجة الحالية. مصدر البيانات: {source === "supabase" ? "Supabase" : "mock"}.</p>
+            <p>الجدول يوضح الطالب، الجولة، حالة التسليم، والدرجة الحالية.</p>
           </div>
         </div>
         <table className="table">

@@ -5,6 +5,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { SummaryCard } from "@/components/summary-card";
 import { UploadPanel } from "@/components/upload-panel";
 import { getStudentSession } from "@/lib/auth";
+import { getStatusLabel } from "@/lib/dashboard";
 import { getStudentDashboard } from "@/lib/dashboard";
 import { formatDate } from "@/lib/format";
 
@@ -37,7 +38,7 @@ export default async function StudentPage({
     );
   }
 
-  const { student, profile, classSection, entries, rounds, source } = await getStudentDashboard(session.userId);
+  const { student, profile, entries, rounds } = await getStudentDashboard(session.userId);
   if (!student || !profile) {
     return (
       <Shell
@@ -68,9 +69,14 @@ export default async function StudentPage({
       subtitle="هنا يرفع الطالب ملفات المعرض فقط. اختر الملفات ثم اضغط رفع الملفات."
     >
       <section className="grid-3">
-        <SummaryCard label="الطالب" value={student.displayName || student.username || "طالب"} hint={student.username ?? "بدون اسم مستخدم"} icon="🧑‍🎓" />
-        <SummaryCard label="الشعبة" value={classSection?.name ?? "بدون شعبة"} hint={classSection?.gradeLabel ?? "يمكن إضافتها لاحقاً"} icon="📚" />
+        <SummaryCard label="الطالب" value={student.displayName || student.username || "طالب"} hint="حسابك جاهز للرفع" icon="🧑‍🎓" />
         <SummaryCard label="الجولة الحالية" value={activeRound?.title ?? "لا توجد جولة"} hint="هذه هي الجولة التي سترفع فيها الآن" icon="⏳" />
+        <SummaryCard
+          label="الحالة"
+          value={latestEntry ? getStatusLabel(latestEntry.submission.status) : "لا يوجد رفع بعد"}
+          hint={latestEntry ? "هذه آخر حالة لملفاتك" : "ابدأ برفع ملفاتك"}
+          icon="📌"
+        />
       </section>
 
       <section className="card">
@@ -114,7 +120,7 @@ export default async function StudentPage({
         <div className="section-head">
           <div>
             <h2>آخر ما تم رفعه</h2>
-            <p>يمكنك من هنا رؤية آخر حالة لملفاتك. مصدر البيانات: {source === "supabase" ? "Supabase" : "mock"}.</p>
+            <p>يمكنك من هنا رؤية ملفاتك وحالتها الحالية.</p>
           </div>
         </div>
 

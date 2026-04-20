@@ -49,7 +49,7 @@ export function StudentLoginForm({ showDemoHelp, demoCredentials = [] }: Student
       <div className="section-head">
         <div>
           <h2>دخول الطالب</h2>
-          <p>اسم مستخدم وكلمة مرور فقط. ويمكن للطالب إنشاء حسابه بنفسه.</p>
+          <p>أدخل اسم المستخدم وكلمة المرور، أو أنشئ حساباً جديداً بسرعة.</p>
         </div>
       </div>
 
