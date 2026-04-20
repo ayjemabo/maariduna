@@ -126,8 +126,10 @@ export async function uploadSubmissionFile(input: {
   }
 
   const storagePath = getSafeStoragePath(input.submissionId, input.file.name);
-  const uploadResult = await supabase.storage.from(storageBucket).upload(storagePath, input.file, {
-    upsert: true
+  const fileBytes = new Uint8Array(await input.file.arrayBuffer());
+  const uploadResult = await supabase.storage.from(storageBucket).upload(storagePath, fileBytes, {
+    upsert: true,
+    contentType: input.file.type || "application/octet-stream"
   });
 
   if (uploadResult.error) {
