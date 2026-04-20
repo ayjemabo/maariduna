@@ -119,6 +119,7 @@ export async function registerUploadedFile(input: Omit<RegisterFileInput, "kind"
 export async function uploadSubmissionFile(input: {
   submissionId: string;
   file: File;
+  originalName: string;
 }) {
   const supabase = createServerSupabaseClient();
   if (!supabase) {
@@ -138,7 +139,7 @@ export async function uploadSubmissionFile(input: {
 
   await registerUploadedFile({
     submissionId: input.submissionId,
-    name: input.file.webkitRelativePath || input.file.name,
+    name: input.originalName,
     sizeBytes: input.file.size,
     storagePath
   });

@@ -19,6 +19,11 @@ function getDisplayName(file: File) {
   return file.webkitRelativePath || file.name;
 }
 
+function getSafeUploadName(file: File) {
+  const extension = file.name.includes(".") ? `.${file.name.split(".").pop()?.toLowerCase()}` : "";
+  return `${globalThis.crypto.randomUUID()}${extension}`;
+}
+
 export function UploadPanel({ submissionId, roundId }: UploadPanelProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [message, setMessage] = useState("اختر الملفات ثم اضغط رفع الملفات.");
@@ -83,7 +88,8 @@ export function UploadPanel({ submissionId, roundId }: UploadPanelProps) {
       const displayName = getDisplayName(file);
       const formData = new FormData();
       formData.append("submissionId", confirmedSubmissionId);
-      formData.append("file", file, displayName);
+      formData.append("originalName", displayName);
+      formData.append("file", file, getSafeUploadName(file));
 
       const uploadResponse = await fetch("/api/submissions", {
         method: "POST",

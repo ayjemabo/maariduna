@@ -46,10 +46,12 @@ export async function POST(request: NextRequest) {
 
     if (body instanceof FormData) {
       const file = body.get("file");
+      const originalName = String(body.get("originalName") ?? "");
       if (file instanceof File) {
         const storagePath = await uploadSubmissionFile({
           submissionId,
-          file
+          file,
+          originalName: originalName || file.name
         });
 
         return NextResponse.json({ ok: true, submissionId, storagePath });
