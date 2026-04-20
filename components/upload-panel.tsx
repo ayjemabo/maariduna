@@ -20,8 +20,8 @@ function getDisplayName(file: File) {
 }
 
 function getStoragePath(submissionId: string, file: File) {
-  const originalName = getDisplayName(file).replace(/^\/+/, "");
-  return `${submissionId}/${Date.now()}-${originalName}`;
+  const extension = file.name.includes(".") ? `.${file.name.split(".").pop()?.toLowerCase()}` : "";
+  return `${submissionId}/${Date.now()}-${globalThis.crypto.randomUUID()}${extension}`;
 }
 
 export function UploadPanel({ submissionId, roundId }: UploadPanelProps) {
