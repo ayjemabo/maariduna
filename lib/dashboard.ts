@@ -1,3 +1,4 @@
+import { createServerSupabaseClient } from "@/lib/supabase";
 import { getDataset } from "@/lib/data";
 import type { SubmissionStatus } from "@/lib/types";
 
@@ -72,8 +73,28 @@ export async function getSubmissionView(submissionId: string) {
     "";
   const files = submissionFiles.filter((item) => item.submissionId === submissionId);
   const comments = reviewComments.filter((item) => item.submissionId === submissionId);
+  const supabase = source === "supabase" ? createServerSupabaseClient() : null;
+  const filesWithUrls = await Promise.all(
+    files.map(async (file) => {
+      if (!supabase) {
+        return {
+          ...file,
+          downloadUrl: null
+        };
+      }
 
-  return { submission, profile, student, round, classSection, files, comments, assignedTeacherId, source };
+      const signedUrlResult = await supabase.storage
+        .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET || "student-submissions")
+        .createSignedUrl(file.storagePath, 60 * 60);
+
+      return {
+        ...file,
+        downloadUrl: signedUrlResult.data?.signedUrl ?? null
+      };
+    })
+  );
+
+  return { submission, profile, student, round, classSection, files: filesWithUrls, comments, assignedTeacherId, source };
 }
 
 export async function getStudentDashboard(studentUserId = "student-1") {

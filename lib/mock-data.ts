@@ -108,6 +108,7 @@ export const submissionFiles: SubmissionFile[] = [
     name: "لوحات-سارة.zip",
     kind: "zip",
     sizeLabel: "42 MB",
+    storagePath: "mock/submission-1/lohat-sara.zip",
     uploadedAt: "2026-04-12T08:03:00Z"
   },
   {
@@ -116,6 +117,7 @@ export const submissionFiles: SubmissionFile[] = [
     name: "شرح-المشروع.pdf",
     kind: "pdf",
     sizeLabel: "2.1 MB",
+    storagePath: "mock/submission-1/sharh-project.pdf",
     uploadedAt: "2026-04-12T08:05:00Z"
   },
   {
@@ -124,6 +126,7 @@ export const submissionFiles: SubmissionFile[] = [
     name: "معرض-ريم.zip",
     kind: "zip",
     sizeLabel: "36 MB",
+    storagePath: "mock/submission-2/mared-reem.zip",
     uploadedAt: "2026-04-10T11:35:00Z"
   },
   {
@@ -132,6 +135,7 @@ export const submissionFiles: SubmissionFile[] = [
     name: "لوحة-رئيسية.jpg",
     kind: "image",
     sizeLabel: "4.8 MB",
+    storagePath: "mock/submission-2/lawha-main.jpg",
     uploadedAt: "2026-04-10T11:36:00Z"
   },
   {
@@ -140,6 +144,7 @@ export const submissionFiles: SubmissionFile[] = [
     name: "مخططات-لما.pdf",
     kind: "pdf",
     sizeLabel: "1.3 MB",
+    storagePath: "mock/submission-3/mokhattat-lama.pdf",
     uploadedAt: "2026-04-16T06:21:00Z"
   }
 ];

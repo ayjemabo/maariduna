@@ -49,7 +49,9 @@ export interface SubmissionFile {
   name: string;
   kind: FileKind;
   sizeLabel: string;
+  storagePath: string;
   uploadedAt: string;
+  downloadUrl?: string | null;
 }
 
 export interface ReviewComment {

@@ -98,9 +98,15 @@ export default async function SubmissionDetailsPage({
                     {file.kind.toUpperCase()} - {file.sizeLabel}
                   </div>
                 </div>
-                <button className="secondary-button" type="button">
-                  تنزيل / معاينة
-                </button>
+                {file.downloadUrl ? (
+                  <a className="secondary-button" href={file.downloadUrl} target="_blank" rel="noreferrer">
+                    تنزيل / معاينة
+                  </a>
+                ) : (
+                  <button className="secondary-button" type="button" disabled>
+                    غير متاح
+                  </button>
+                )}
               </li>
             ))}
           </ul>

@@ -71,6 +71,7 @@ type SubmissionFileRow = {
   name: string;
   kind: SubmissionFile["kind"];
   size_bytes: number;
+  storage_path: string;
   created_at: string;
 };
 
@@ -159,6 +160,7 @@ function mapSubmissionFile(row: SubmissionFileRow): SubmissionFile {
     name: row.name,
     kind: row.kind,
     sizeLabel: `${sizeMb.toFixed(1)} MB`,
+    storagePath: row.storage_path,
     uploadedAt: row.created_at
   };
 }
@@ -217,7 +219,7 @@ async function getSupabaseDataset(): Promise<Dataset | null> {
       .order("updated_at", { ascending: false }),
     supabase
       .from("submission_files")
-      .select("id, submission_id, name, kind, size_bytes, created_at")
+      .select("id, submission_id, name, kind, size_bytes, storage_path, created_at")
       .order("created_at", { ascending: false }),
     supabase
       .from("review_comments")
